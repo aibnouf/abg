@@ -1,0 +1,29 @@
+name: Fix Gradle Wrapper
+on: workflow_dispatch
+
+jobs:
+  fix-wrapper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download gradle-wrapper.jar
+        run: |
+          mkdir -p gradle/wrapper
+          wget -O gradle/wrapper/gradle-wrapper.jar \
+            https://github.com/gradle/gradle/raw/7.6/gradle/wrapper/gradle-wrapper.jar
+          
+      - name: Verify all wrapper files
+        run: |
+          echo "Checking repository structure:"
+          ls -la | grep gradle
+          echo "Checking gradle/wrapper/:"
+          ls -la gradle/wrapper/
+          
+      - name: Commit and push
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add gradle/wrapper/gradle-wrapper.jar
+          git commit -m "Add missing gradle-wrapper.jar" || echo "No changes to commit"
+          git push
