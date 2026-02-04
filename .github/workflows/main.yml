@@ -1,16 +1,24 @@
-name: Build APK
-on: [push]
+name: Generate Gradle Wrapper
+on: workflow_dispatch
+
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # ← ADD THIS LINE
+          distribution: 'temurin'
           java-version: '17'
-      - run: chmod +x ./gradlew && ./gradlew assembleDebug
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-apk
-          path: app/build/outputs/apk/debug/*.apk
+      - run: |
+          # Install Gradle
+          wget https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip gradle-8.5-bin.zip
+          ./gradle-8.5/bin/gradle wrapper
+          
+          # Commit the generated files
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add gradlew gradlew.bat gradle/wrapper/
+          git commit -m "Add Gradle wrapper files" || echo "No changes to commit"
+          git push
